@@ -1,0 +1,14 @@
+{
+   "code": "$let[server_posts;$getServerVar[posts]]\n$let[last_run_dt;$getServerVar[last_run]]\n$let[run_now;0]\n$if[$checkCondition[$server_posts==0]]\n$let[post_status;No Posts]\n$elseif[$checkCondition[$server_posts>=20]]\n$let[run_now;1]\n$let[post_status;Posts]\n$endelseif\n$else\n$let[post_status;Posts]\n$endIf\n$if[$checkCondition[$sub[$dateStamp[Yes];$last_run_dt]>=604800]]\n$let[run_now;1]\n$endIf\n$if[$checkCondition[$run_now==1&&$post_status==Posts]]\n$let[run_digest;1]\n$let[record_run;1]\n$elseif[$checkCondition[$run_now==1]]\n$let[run_digest;0]\n$let[record_run;1]\n$endelseif\n$else\n$let[run_digest;0]\n$let[record_run;0]\n$endIf\n$if[$checkCondition[$run_digest==1]]\n$channelSendMessage[1176659747961835673;Running Digest]\n$let[updated_channels;$arrayCreate[$getServerVar[channel_posts];|]]\n$arrayCreate[;;output]\n$arrayPush[<@&1251675436438519818>;output]\n$arrayPush[***Forum messages since last update:***;output]\n$arrayPush[;output]\n$arrayLoop[channel_id;cidx;$updated_channels]{\n$arrayPush[<#$channel_id> posts:;output]\n$objectCreate[$getChannelVar[posts;$channel_id]]\n$objectLoop[thread_id;post_count;idx]{\n$let[thread_name;$channel[$thread_id;name]]\n$if[$checkCondition[$textLength[$thread_name]>70]]\n$let[thread_display_name;$textSlice[$thread_name;0;67]...]\n$else\n$let[thread_display_name;$thread_name]\n$endIf\n$if[$checkCondition[$post_count>20]]\n$let[txt;> :fire: [**$thread_display_name**](https://discord.com/channels/690972325922865202/$thread_id) has $post_count :fire:]\n$else\n$let[txt;> [**$thread_display_name**](https://discord.com/channels/690972325922865202/$thread_id) has $post_count]\n$endIf\n$arrayPush[$txt;output]\n}\n$arrayPush[;output]\n$setChannelVar[posts;$objectCreate;$channel_id]\n}\n$arrayJoin[\n;output]\n$setServerVar[channel_posts;$arrayCreate[;;]]\n$setServerVar[posts;0]\n$else\n$channelSendMessage[1176659747961835673;Digest did not run]\n$endIf\n$if[$checkCondition[$record_run==1]]\n$setServerVar[last_run;$dateStamp[Yes]]\n$endIf",
+   "filename": "Timed Digest",
+   "ttype": "interval",
+   "tword": "4h",
+   "channeli": "797209894192807946",
+   "rolei": "",
+   "minperms": 0,
+   "clone": false,
+   "channelUsed": "730433753641386014",
+   "status": true,
+   "token": "oG1Ja",
+   "folder": "DEFAULT"
+}
