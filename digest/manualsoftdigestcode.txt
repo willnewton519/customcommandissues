@@ -1,0 +1,59 @@
+$let[server_posts;$getServerVar[posts]]
+$let[last_run_dt;$getServerVar[last_run]]
+$let[run_now;0]
+$if[$checkCondition[$server_posts==0]]
+$let[post_status;No Posts]
+$elseif[$checkCondition[$server_posts>=20]]
+$let[run_now;1]
+$let[post_status;Posts]
+$endelseif
+$else
+$let[post_status;Posts]
+$endIf
+$if[$checkCondition[$sub[$dateStamp[Yes];$last_run_dt]>=604800]]
+$let[run_now;1]
+$endIf
+$if[$checkCondition[$run_now==1&&$post_status==Posts]]
+$let[run_digest;1]
+$let[record_run;1]
+$elseif[$checkCondition[$run_now==1]]
+$let[run_digest;0]
+$let[record_run;1]
+$endelseif
+$else
+$let[run_digest;0]
+$let[record_run;0]
+$endIf
+$if[$checkCondition[$run_digest==1]]
+$channelSendMessage[797209894192807946;Running Digest]
+$let[updated_channels;$arrayCreate[$getServerVar[channel_posts];|]]
+$arrayCreate[;;output]
+$arrayPush[<@&1251675436438519818>;output]
+$arrayPush[***Forum messages since last update:***;output]
+$arrayPush[;output]
+$arrayLoop[channel_id;cidx;$updated_channels]{
+$arrayPush[<#$channel_id> posts:;output]
+$objectCreate[$getChannelVar[posts;$channel_id]]
+$objectLoop[thread_id;post_count;idx]{
+$let[thread_name;$channel[$thread_id;name]]
+$if[$checkCondition[$textLength[$thread_name]>70]]
+$let[thread_display_name;$textSlice[$thread_name;0;67]...]
+$else
+$let[thread_display_name;$thread_name]
+$endIf
+$if[$checkCondition[$post_count>20]]
+$let[txt;> :fire: [**$thread_display_name**](https://discord.com/channels/690972325922865202/$thread_id) has $post_count :fire:]
+$else
+$let[txt;> [**$thread_display_name**](https://discord.com/channels/690972325922865202/$thread_id) has $post_count]
+$endIf
+$arrayPush[$txt;output]
+}
+$arrayPush[;output]
+}
+$arrayJoin[
+;output]
+$else
+$channelSendMessage[797209894192807946;Digest did not run]
+$endIf
+$if[$checkCondition[$record_run==1]]
+$endIf
